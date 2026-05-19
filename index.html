@@ -447,7 +447,7 @@ footer a{color:rgba(245,239,230,.65);text-decoration:none}
 
 
 <footer>
-  <p>© XPLearn · <a href="mailto:contact@xplearn.fr">contact@xplearn.fr</a> · 06 47 99 75 36 · <a href="https://xplearn.fr" target="_blank">xplearn.fr</a></p>
+  <p><a href="mailto:contact@xplearn.fr">contact@xplearn.fr</a> · 06 47 99 75 36 · <a href="https://xplearn.fr" target="_blank">xplearn.fr</a><br>© 2026 Coralie Vennin / XpLearn – Tous droits réservés</p>
 </footer>
 
 <div class="toast" id="toast">
@@ -455,7 +455,7 @@ footer a{color:rgba(245,239,230,.65);text-decoration:none}
 </div>
 
 <script>
-const GURL = "https://script.google.com/macros/s/AKfycbxcXwrj2S_uZAQax-TWK1U3I-49sc9wv-cUBwDZ_Dz4a13OQbvCXWes2zYfV2GtrH_D/exec";
+const GURL = "https://script.google.com/macros/s/AKfycbyXCmPaC1oMLapRM5vFQJLNZsGYDPu0KDoYtX2GCCtSmrrom14Qo-DAWawzMZywfmcu/exec";
 let isAnon = false;
 
 /* ── ANONYMAT ── */
@@ -548,11 +548,23 @@ async function doSubmit() {
   }
 
   try {
-    await fetch(GURL, {
-      method: "POST", mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+    // Envoi GET fiable — contourne CORS
+    var params = Object.keys(payload).map(function(k) {
+      return encodeURIComponent(k) + "=" + encodeURIComponent(String(payload[k] || ""));
+    }).join("&");
+    var url = GURL + "?" + params;
+    
+    // Méthode 1 : fetch en no-cors
+    try {
+      await fetch(url, { method: "GET", mode: "no-cors" });
+    } catch(e1) {}
+    
+    // Méthode 2 : image pixel (backup)
+    var img = new Image();
+    img.src = url + "&_t=" + Date.now();
+    
+    // Attendre que l'envoi soit effectué
+    await new Promise(function(r){ setTimeout(r, 2000); });
   } catch(e) {}
 
   document.getElementById("fsec").style.display = "none";
